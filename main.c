@@ -9,18 +9,49 @@ typedef struct NODE {
   // Component/group indicator for the word
   int component;
 
-  // Distance (char difference) to the next (P)/previous (M) word
-  // differing only in the first/second/third letter.
-  char aP;
-  char aM;
-  char bP;
-  char bM;
-  char cP;
-  char cM;
+  // Step size in each dimension to the next/prev word (-1 if not existant)
+  char next[3];
+  char prev[3];
 } NODE;
 
+// Array index for given coordinates
 uint32_t pos(int x, int y, int z) {
   return x + LEN * y + LEN * LEN * z;
+}
+
+// Array index for given coordinates with permutated x,y,z
+uint32_t pos2(int x, int y, int z, char dim) {
+  if (dim == 0) {
+    return pos(x,y,z);
+  } else if (dim == 1) {
+    return pos(y,x,z);
+  } else if (dim == 2) {
+    return pos(z,x,y);
+  }
+  return -1;
+}
+
+// Initialize navigation structure on the nodes
+uint32_t initNav(NODE* nodes, char dim) {
+  int x,y,z;
+  int last; // Least recently visited non-empty index
+  for (z = 0; z < LEN; z++) {
+    for (y = 0; y < LEN; y++) {
+      last = -1;
+      for (x = 0; x < LEN; x++) {
+        // If there is a word present
+        if (nodes[pos2(x,y,z,dim)].component != -1) {
+          // Set pointer to last word
+          nodes[pos2(x,y,z,dim)].prev[dim] = last;
+          // If last word existing, set reversed pointer, too
+          if (last != -1) {
+            nodes[pos2(last,y,z,dim)].next[dim] = x;
+          }
+          last = x;
+        }
+      }
+    }
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -68,63 +99,26 @@ int main(int argc, char *argv[]) {
     }
 
     // Mark node as existing
-    nodes[pos(a,b,c)].component = 0;
-    nodes[pos(a,b,c)].aP = -1;
-    nodes[pos(a,b,c)].aM = -1;
-    nodes[pos(a,b,c)].bP = -1;
-    nodes[pos(a,b,c)].bM = -1;
-    nodes[pos(a,b,c)].cP = -1;
-    nodes[pos(a,b,c)].cM = -1;
+    int p = pos(a,b,c);
+    nodes[p].component = 0;
+    nodes[p].prev[0] = -1; nodes[p].prev[1] = -1; nodes[p].prev[2] = -1;
+    nodes[p].next[0] = -1; nodes[p].next[1] = -1; nodes[p].next[2] = -1;
   }
 
-  int x,y,z;
-  int last; // Least recently visited non-empty index
-  for (z = 0; z < LEN; z++) {
-    for (y = 0; y < LEN; y++) {
-      last = -1;
-      for (x = 0; x < LEN; x++) {
-        // If there is a word present
-        if (nodes[pos(x,y,z)].component != -1) {
-          // Set pointer to last word
-          nodes[pos(x,y,z)].aM = last;
-          // If last word existing, set reversed pointer, too
-          if (last != -1) {
-            nodes[pos(last,y,z)].aP = x;
-          }
-          last = x;
-        }
-      }
-    }
-  }
+  // Init navigation structure on the nodes
+  initNav(nodes, 0);
+  initNav(nodes, 1);
+  initNav(nodes, 2);
 
-  // same for y and z
-  for (z = 0; z < LEN; z++) {
-    for (x = 0; x < LEN; x++) {
-      last = -1;
-      for (y = 0; y < LEN; y++) {
-        if (nodes[pos(x,y,z)].component != -1) {
-          nodes[pos(x,y,z)].bM = last;
-          if (last != -1) {
-            nodes[pos(x,last,z)].bP = y;
-          }
-          last = y;
-        }
-      }
-    }
-  }
-
-  for (y = 0; y < LEN; y++) {
-    for (x = 0; x < LEN; x++) {
-      last = -1;
-      for (z = 0; z < LEN; z++) {
-        if (nodes[pos(x,y,z)].component != -1) {
-          nodes[pos(x,y,z)].cM = last;
-          if (last != -1) {
-            nodes[pos(x,y,last)].cP = z;
-          }
-          last = z;
-        }
-      }
+  for (i = 0; i < 26; i++) {
+    int p = pos(2,0,i);
+    a = 'c';
+    b = 'a';
+    c = i + 'a';
+    if (nodes[p].component == -1) {
+      printf("%2d %c%c%c: \n", i, a, b, c);
+    } else {
+      printf("%2d %c%c%c: x %d %d\n", i, a, b, c, nodes[p].next[2], nodes[p].prev[2]);
     }
   }
 
