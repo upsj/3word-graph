@@ -31,6 +31,38 @@ uint32_t pos2(int x, int y, int z, char dim) {
   return -1;
 }
 
+void readWords(NODE* nodes, FILE* f_input) {
+  char* buf = malloc(5); // Reading buffer
+  size_t buf_size = 5;
+  size_t line = 0; // Line counter
+  ssize_t read; // Size of last line
+  char a,b,c; // Character indices
+
+  // Read lines
+  while ((read = getline(&buf, &buf_size, f_input)) != -1) {
+    line++;
+    // 3 letter words should be in each line
+    if (read < 3) {
+      printf("Word too short in line %d: %s\n", line, buf);
+      continue;
+    }
+
+    a = buf[0] - 'a';
+    b = buf[1] - 'a';
+    c = buf[2] - 'a';
+    if (a > 25 || a < 0 || b > 25 || b < 0 || c > 25 || c < 0) {
+      printf("Not a lower case character in line %d: %s\n", line, buf);
+      continue;
+    }
+
+    // Mark node as existing
+    int p = pos(a,b,c);
+    nodes[p].component = 0;
+    nodes[p].prev[0] = -1; nodes[p].prev[1] = -1; nodes[p].prev[2] = -1;
+    nodes[p].next[0] = -1; nodes[p].next[1] = -1; nodes[p].next[2] = -1;
+  }
+}
+
 // Initialize navigation structure on the nodes
 uint32_t initNav(NODE* nodes, char dim) {
   int x,y,z;
@@ -75,40 +107,11 @@ int main(int argc, char *argv[]) {
     nodes[i].component = -1;
   }
 
-  char* buf = malloc(5); // Reading buffer
-  size_t buf_size = 5;
-  size_t line = 0; // Line counter
-  ssize_t read; // Size of last line
-  char a,b,c; // Character indices
-
-  // Read lines
-  while ((read = getline(&buf, &buf_size, f_input)) != -1) {
-    line++;
-    // 3 letter words should be in each line
-    if (read < 3) {
-      printf("Word too short in line %d: %s\n", line, buf);
-      continue;
-    }
-
-    a = buf[0] - 'a';
-    b = buf[1] - 'a';
-    c = buf[2] - 'a';
-    if (a > 25 || a < 0 || b > 25 || b < 0 || c > 25 || c < 0) {
-      printf("Not a lower case character in line %d: %s\n", line, buf);
-      continue;
-    }
-
-    // Mark node as existing
-    int p = pos(a,b,c);
-    nodes[p].component = 0;
-    nodes[p].prev[0] = -1; nodes[p].prev[1] = -1; nodes[p].prev[2] = -1;
-    nodes[p].next[0] = -1; nodes[p].next[1] = -1; nodes[p].next[2] = -1;
-  }
+  readWords(nodes, f_input);
+  fclose(f_input);
 
   // Init navigation structure on the nodes
   initNav(nodes, 0);
   initNav(nodes, 1);
   initNav(nodes, 2);
-
-  fclose(f_input);
 }
