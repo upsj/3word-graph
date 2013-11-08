@@ -26,7 +26,7 @@ uint32_t pos2(int x, int y, int z, char dim) {
   } else if (dim == 1) {
     return pos(y,x,z);
   } else if (dim == 2) {
-    return pos(z,x,y);
+    return pos(y,z,x);
   }
   return -1;
 }
@@ -109,18 +109,6 @@ int main(int argc, char *argv[]) {
   initNav(nodes, 0);
   initNav(nodes, 1);
   initNav(nodes, 2);
-
-  for (i = 0; i < 26; i++) {
-    int p = pos(2,0,i);
-    a = 'c';
-    b = 'a';
-    c = i + 'a';
-    if (nodes[p].component == -1) {
-      printf("%2d %c%c%c: \n", i, a, b, c);
-    } else {
-      printf("%2d %c%c%c: x %d %d\n", i, a, b, c, nodes[p].next[2], nodes[p].prev[2]);
-    }
-  }
 
   fclose(f_input);
 }
