@@ -14,6 +14,8 @@ typedef struct NODE {
   char prev[3];
 } NODE;
 
+NODE nodes[LEN3];
+
 // Array index for given coordinates
 uint32_t pos(int x, int y, int z) {
   return x + LEN * y + LEN * LEN * z;
@@ -31,7 +33,7 @@ uint32_t pos2(int x, int y, int z, char dim) {
   return -1;
 }
 
-void readWords(NODE* nodes, FILE* f_input) {
+void readWords(FILE* f_input) {
   char* buf = malloc(5); // Reading buffer
   size_t buf_size = 5;
   size_t line = 0; // Line counter
@@ -64,7 +66,7 @@ void readWords(NODE* nodes, FILE* f_input) {
 }
 
 // Initialize navigation structure on the nodes
-uint32_t initNav(NODE* nodes, char dim) {
+uint32_t initNav(char dim) {
   int x,y,z;
   int last; // Least recently visited non-empty index
   for (z = 0; z < LEN; z++) {
@@ -86,6 +88,25 @@ uint32_t initNav(NODE* nodes, char dim) {
   }
 }
 
+void dfs_component(int x, int y, int z, int c) {
+  if (nodes[pos(x,y,z)].component > 0)
+    return;
+  if (nodes[pos(x,y,z)].component < 0) {
+    printf("ERROR: %c%c%c %d %d", x + 'a', y + 'a', z + 'a', nodes[pos(x,y,z)].component, c);
+    return;
+  }
+  printf("%c%c%c,", x + 'a', y + 'a', z + 'a');
+  NODE n;
+  nodes[pos(x,y,z)].component = c;
+  int i;
+  n = nodes[pos(x,y,z)]; for (i = n.next[0]; i != -1; n = nodes[pos(i,y,z)],i = n.next[0]) dfs_component(i,y,z,c);
+  n = nodes[pos(x,y,z)]; for (i = n.prev[0]; i != -1; n = nodes[pos(i,y,z)],i = n.prev[0]) dfs_component(i,y,z,c);
+  n = nodes[pos(x,y,z)]; for (i = n.next[1]; i != -1; n = nodes[pos(x,i,z)],i = n.next[1]) dfs_component(x,i,z,c);
+  n = nodes[pos(x,y,z)]; for (i = n.prev[1]; i != -1; n = nodes[pos(x,i,z)],i = n.prev[1]) dfs_component(x,i,z,c);
+  n = nodes[pos(x,y,z)]; for (i = n.next[2]; i != -1; n = nodes[pos(x,y,i)],i = n.next[2]) dfs_component(x,y,i,c);
+  n = nodes[pos(x,y,z)]; for (i = n.prev[2]; i != -1; n = nodes[pos(x,y,i)],i = n.prev[2]) dfs_component(x,y,i,c);
+}
+
 int main(int argc, char *argv[]) {
   // Usage message
   if (argc != 2) {
@@ -100,18 +121,35 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  NODE nodes[LEN3];
   // Initialize nodes
   int i;
   for (i = 0; i < LEN3; i++) {
     nodes[i].component = -1;
   }
 
-  readWords(nodes, f_input);
+  // Read lines
+  readWords(f_input);
   fclose(f_input);
 
   // Init navigation structure on the nodes
-  initNav(nodes, 0);
-  initNav(nodes, 1);
-  initNav(nodes, 2);
+  initNav(0);
+  initNav(1);
+  initNav(2);
+
+  int x,y,z,c,p;
+  c = 1;
+  for (z = 0; z < LEN; z++) {
+    for (y = 0; y < LEN; y++) {
+      for (x = 0; x < LEN; x++) {
+        p = pos(x,y,z);
+        if (nodes[p].component != 0)
+          continue;
+        printf("Component #%d:\n", c, x+'a', y+'a', z+'a');
+        dfs_component(x,y,z,c);
+        printf("\n\n");
+        c++;
+      }
+    }
+  }
+  printf("%d", c - 1);
 }
