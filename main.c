@@ -15,6 +15,7 @@ typedef struct NODE {
 } NODE;
 
 NODE nodes[LEN3];
+int shortMode; // 1 if the components should not be output
 
 // Array index for given coordinates
 uint32_t pos(int x, int y, int z) {
@@ -95,7 +96,7 @@ void dfs_component(int x, int y, int z, int c) {
     printf("ERROR: %c%c%c %d %d", x + 'a', y + 'a', z + 'a', nodes[pos(x,y,z)].component, c);
     return;
   }
-  printf("%c%c%c,", x + 'a', y + 'a', z + 'a');
+  if (!shortMode) printf("%c%c%c,", x + 'a', y + 'a', z + 'a');
   NODE n;
   nodes[pos(x,y,z)].component = c;
   int i;
@@ -109,8 +110,8 @@ void dfs_component(int x, int y, int z, int c) {
 
 int main(int argc, char *argv[]) {
   // Usage message
-  if (argc != 2) {
-    printf("Usage: word3components <input file>\n");
+  if (argc < 2) {
+    printf("Usage: word3components <input file> [-short]\n");
     return EXIT_FAILURE;
   }
 
@@ -119,6 +120,12 @@ int main(int argc, char *argv[]) {
   if (!f_input) {
     printf("File could not be opened: %s\n", argv[1]);
     return EXIT_FAILURE;
+  }
+
+  if (argc == 2) {
+    shortMode = 0;
+  } else {
+    shortMode = strcmp("-short", argv[2]) == 0;
   }
 
   // Initialize nodes
@@ -144,12 +151,12 @@ int main(int argc, char *argv[]) {
         p = pos(x,y,z);
         if (nodes[p].component != 0)
           continue;
-        printf("Component #%d:\n", c, x+'a', y+'a', z+'a');
+        if (!shortMode) printf("Component #%d:\n", c, x+'a', y+'a', z+'a');
         dfs_component(x,y,z,c);
-        printf("\n\n");
+        if (!shortMode) printf("\n\n");
         c++;
       }
     }
   }
-  printf("%d", c - 1);
+  printf("%d components\n", c - 1);
 }
