@@ -2,12 +2,13 @@
 
 void usage_msg() {
   fprintf(stderr, "Usage: 3words <word list> <mode>\n");
-  fprintf(stderr, "Modes:\n  %s\n    %s\n  %s\n    %s\n  %s\n    %s\n    %s\n  %s\n    %s\n",
+  fprintf(stderr, "Modes:\n  %s\n    %s\n  %s\n    %s\n  %s\n    %s\n    %s\n  %s\n    %s\n  %s\n    %s\n",
                   "components", "Lists the connected components of the word graph",
                   "degrees", "Lists the degrees of the words and their neighbours",
                   "path", "Displays a shortest path between two words in the graph",
                           "Example: 3words <word list> path bus car",
-                  "stats", "Displays key figures of the word graph");
+                  "stats", "Displays key figures of the word graph",
+                  "diameter", "Computes the diameter of the graph (slow)");
 }
 
 int main(int argc, char *argv[]) {
@@ -28,6 +29,8 @@ int main(int argc, char *argv[]) {
     mode = MODE_PATH;
   } else if (strcmp("stats",argv[2]) == 0) {
      mode = MODE_STATS;
+  } else if (strcmp("diameter",argv[2]) == 0) {
+     mode = MODE_DIAMETER;
   } else {
     usage_msg();
   }
@@ -71,4 +74,6 @@ int main(int argc, char *argv[]) {
   calcDegrees(nodes, mode & MODE_DEGREESTAT, mode & MODE_DEGREELIST);
 
   if (mode & MODE_PATH) shortestPath(nodes, a[0]-'a',a[1]-'a',a[2]-'a',b[0]-'a',b[1]-'a',b[2]-'a', TRUE);
+
+  if (mode & MODE_DIAMETER) diameter(fopen(argv[1], "r"), wordCount, nodes);
 }

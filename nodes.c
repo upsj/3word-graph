@@ -37,8 +37,8 @@ INT readWords(NODE* nodes, FILE* f_input) {
   // Read lines
   while ((read = getline(&buf, &buf_size, f_input)) != -1) {
     line++;
-    // 3 letter words should be in each line
-    if (read < 3) {
+    // 3 letter words + \n should be in each line
+    if (read < 4) {
       fprintf(stderr, "Word too short in line %d: %s\n", line, buf);
       continue;
     }
