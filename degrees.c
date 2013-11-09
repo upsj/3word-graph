@@ -1,7 +1,7 @@
 #include "degrees.h"
 
 void o(BYTE x, BYTE y, BYTE z) {
-  printf("%c%c%c ", x + 'a', y + 'a', z + 'a');
+  printf("%c%c%c ",CHARS(x,y,z));
 }
 
 BYTE degree (NODE* nodes, BYTE x, BYTE y, BYTE z, BOOL output) {

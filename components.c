@@ -8,10 +8,10 @@ void dfs_component(NODE* nodes, BYTE x, BYTE y, BYTE z, BYTE c) {
   if (nodes[p].component > 0)
     return;
   if (nodes[p].component < 0) {
-    fprintf(stderr, "dfs_component: %c%c%c %d %d", x + 'a', y + 'a', z + 'a', nodes[p].component, c);
+    fprintf(stderr, "dfs_component: %c%c%c %d %d", CHARS(x,y,z), nodes[p].component, c);
     return;
   }
-  if (out) printf("%c%c%c,", x + 'a', y + 'a', z + 'a');
+  if (out) printf("%c%c%c ", CHARS(x,y,z));
   NODE n;
   nodes[p].component = c;
   BYTE i;
@@ -34,7 +34,7 @@ int findComponents(NODE* nodes, BOOL output) {
         p = pos(x,y,z);
         if (nodes[p].component != 0)
           continue;
-        if (out) printf("Component #%d:\n", c, x+'a', y+'a', z+'a');
+        if (out) printf("Component #%d:\n", c, CHARS(x,y,z));
         dfs_component(nodes, x,y,z,c);
         if (out) printf("\n\n");
         c++;
