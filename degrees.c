@@ -35,6 +35,7 @@ void calcDegrees(NODE* nodes, BOOL stats, BOOL fullOutput) {
   BYTE x, y, z, d;
   BYTE maxD, maxX, maxY, maxZ;
   INT p;
+  INT sumD = 0;
   maxD = -1;
 
   for (z = 0; z < LEN; z++) {
@@ -44,6 +45,7 @@ void calcDegrees(NODE* nodes, BOOL stats, BOOL fullOutput) {
         if (nodes[p].component < 0)
           continue;
         d = degree(nodes, x, y, z, fullOutput);
+        sumD += d;
         if (d > maxD) {
           maxD = d;
           maxX = x;
@@ -55,6 +57,7 @@ void calcDegrees(NODE* nodes, BOOL stats, BOOL fullOutput) {
   }
 
   if (stats) {
+    printf("Sum of degrees: %d\n", sumD);
     printf("Maximal degree: \n");
     if (maxD >= 0) {
       degree(nodes, maxX, maxY, maxZ, TRUE);
