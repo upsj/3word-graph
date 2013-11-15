@@ -58,6 +58,7 @@ void calcDegrees(NODE* nodes, BOOL stats, BOOL fullOutput) {
 
   if (stats) {
     printf("Sum of degrees: %d\n", sumD);
+    printf("Count of edges: %d\n", sumD / 2);
     printf("Maximal degree: \n");
     if (maxD >= 0) {
       degree(nodes, maxX, maxY, maxZ, TRUE);
